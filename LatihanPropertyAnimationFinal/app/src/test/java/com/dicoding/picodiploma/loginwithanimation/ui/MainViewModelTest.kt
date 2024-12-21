@@ -1,7 +1,6 @@
 package com.dicoding.picodiploma.loginwithanimation.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.PagingData
@@ -85,21 +84,24 @@ class MainViewModelTest {
     }
 }
 
-class StoryPagingSource : PagingSource<Int, LiveData<List<ListStoryItem>>>() {
+class StoryPagingSource : PagingSource<Int, ListStoryItem>() {
     companion object {
         fun snapshot(items: List<ListStoryItem>): PagingData<ListStoryItem> {
             return PagingData.from(items)
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, LiveData<List<ListStoryItem>>>): Int {
-        return 0
+    override fun getRefreshKey(state: PagingState<Int, ListStoryItem>): Int? {
+        return null
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LiveData<List<ListStoryItem>>> {
-        return LoadResult.Page(emptyList(), 0, 1)
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListStoryItem> {
+        return LoadResult.Page(emptyList(), prevKey = null, nextKey = null)
     }
 }
+
+
+
 
     val noopListUpdateCallback = object : ListUpdateCallback {
         override fun onInserted(position: Int, count: Int) {}
