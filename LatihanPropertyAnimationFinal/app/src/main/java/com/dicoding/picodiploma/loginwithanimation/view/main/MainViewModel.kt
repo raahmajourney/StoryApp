@@ -10,8 +10,8 @@ import androidx.paging.cachedIn
 import com.dicoding.picodiploma.loginwithanimation.data.UserRepository
 import com.dicoding.picodiploma.loginwithanimation.response.ListStoryItem
 import kotlinx.coroutines.launch
-import okio.IOException
 import retrofit2.HttpException
+import java.io.IOException
 
 class MainViewModel(private val repository: UserRepository) : ViewModel() {
     private val _story = MutableLiveData<List<ListStoryItem>>()
@@ -41,6 +41,7 @@ class MainViewModel(private val repository: UserRepository) : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
+
                 val response = repository.getStory()
                 _story.value = response.listStory
 

@@ -1,6 +1,7 @@
 package com.dicoding.picodiploma.loginwithanimation.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.PagingData
@@ -18,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,15 +39,21 @@ class MainViewModelTest {
 
     @Mock
     private lateinit var repository: UserRepository
+    private lateinit var  mainViewModel: MainViewModel
+
+    @Before
+    fun setUp() {
+        mainViewModel = MainViewModel(repository)
+    }
 
 
     @Test
-    fun whenGetStoryShouldNotNullReturnData() = runTest {
-        val dummyQuote = DataDummy.generateDummyQuoteResponse()
-        val data: PagingData<ListStoryItem> = StoryPagingSource.snapshot(dummyQuote)
-        val expectedQuote = MutableLiveData<PagingData<ListStoryItem>>()
-        expectedQuote.value = data
-        Mockito.`when`(repository.getStories()).thenReturn(expectedQuote)
+    fun `when Get Story Should Not Null and Return Data`() = runTest {
+        val dummyStory = DataDummy.generateDummyQuoteResponse()
+        val data: PagingData<ListStoryItem> = StoryPagingSource.snapshot(dummyStory)
+        val expectedStory = MutableLiveData<PagingData<ListStoryItem>>()
+        expectedStory.value = data
+        Mockito.`when`(repository.getStories()).thenReturn(expectedStory)
 
         val mainViewModel = MainViewModel(repository)
         val actualStory: PagingData<ListStoryItem> = mainViewModel.stories.getOrAwaitValue()
@@ -58,45 +66,44 @@ class MainViewModelTest {
         differ.submitData(actualStory)
 
         Assert.assertNotNull(differ.snapshot())
-        Assert.assertEquals(dummyQuote.size, differ.snapshot().size)
-        Assert.assertEquals(dummyQuote[0], differ.snapshot()[0])
+        Assert.assertEquals(dummyStory.size, differ.snapshot().size)
+        Assert.assertEquals(dummyStory[0], differ.snapshot()[0])
     }
 
     //
     @Test
-    fun whenGetStoryEmptyShouldReturnNoData() = runTest {
+    fun `when Get Story Empty Should Return No Data`() = runTest {
         val data: PagingData<ListStoryItem> = PagingData.from(emptyList())
-        val expectedQuote = MutableLiveData<PagingData<ListStoryItem>>()
-        expectedQuote.value = data
-        Mockito.`when`(repository.getStories()).thenReturn(expectedQuote)
-
+        val expectedStory = MutableLiveData<PagingData<ListStoryItem>>()
+        expectedStory.value = data
+        Mockito.`when`(repository.getStories()).thenReturn(expectedStory)
         val mainViewModel = MainViewModel(repository)
         val actualStory: PagingData<ListStoryItem> = mainViewModel.stories.getOrAwaitValue()
-
         val differ = AsyncPagingDataDiffer(
             diffCallback = StoryAdapter.DIFF_CALLBACK,
             updateCallback = noopListUpdateCallback,
             workerDispatcher = Dispatchers.Main,
         )
         differ.submitData(actualStory)
-
         Assert.assertEquals(0, differ.snapshot().size)
     }
+
 }
 
-class StoryPagingSource : PagingSource<Int, ListStoryItem>() {
+class StoryPagingSource : PagingSource<Int, LiveData<List<ListStoryItem>>>() {
     companion object {
         fun snapshot(items: List<ListStoryItem>): PagingData<ListStoryItem> {
             return PagingData.from(items)
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, ListStoryItem>): Int? {
-        return null
+    override fun getRefreshKey(state: PagingState<Int, LiveData<List<ListStoryItem>>>): Int {
+        return 0
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListStoryItem> {
-        return LoadResult.Page(emptyList(), prevKey = null, nextKey = null)
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LiveData<List<ListStoryItem>>> {
+        return LoadResult.Page(emptyList(), 0, 1)
     }
 }
 

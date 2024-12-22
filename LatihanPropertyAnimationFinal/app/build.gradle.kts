@@ -25,8 +25,7 @@ android {
         }
     }
     compileOptions {
-      //  sourceCompatibility = JavaVersion.VERSION_11
-       // targetCompatibility = JavaVersion.VERSION_11
+
 
        sourceCompatibility = JavaVersion.VERSION_1_8
        targetCompatibility = JavaVersion.VERSION_1_8
@@ -34,12 +33,15 @@ android {
 
     }
     kotlinOptions {
-       // jvmTarget = "11"
+
         jvmTarget = "1.8"
     }
     buildFeatures {
         viewBinding = true
         buildConfig = true
+    }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
     }
 }
 
@@ -72,8 +74,7 @@ dependencies {
     // Pengujian
     testImplementation("androidx.arch.core:core-testing:2.2.0") // InstantTaskExecutorRule
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // TestDispatcher
-    testImplementation("org.mockito:mockito-core:5.4.0")
-    testImplementation("org.mockito:mockito-inline:5.2.0")
+    testImplementation("org.mockito:mockito-core:5.14.2")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0") // InstantTaskExecutorRule
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // TestDispatcher
 
